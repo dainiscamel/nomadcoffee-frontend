@@ -8,3 +8,7 @@
 - Set up styled-components
 - Set up reactive variables on Apollo Client to enable
 - dark mode and authentication
+
+## Assignment 8
+
+- Implement sign up and login
