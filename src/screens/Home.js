@@ -29,7 +29,7 @@ function Home() {
       page: 1,
     },
   });
-  console.log(data);
+
   return (
     <div>
       <PageTitle title="Home" />

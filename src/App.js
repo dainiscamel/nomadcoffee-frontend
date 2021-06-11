@@ -11,6 +11,7 @@ import routes from "./routes";
 import { HelmetProvider } from "react-helmet-async";
 import Layout from "./components/Layout";
 import AddShop from "./screens/AddShop";
+import EditShop from "./screens/EditShop";
 
 function App() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
@@ -38,9 +39,14 @@ function App() {
                   <SignUp />
                 </Route>
               ) : null}
-              <Route path={`/add`}>
+              <Route path={routes.add}>
                 <Layout>
                   <AddShop />
+                </Layout>
+              </Route>
+              <Route path={routes.edit}>
+                <Layout>
+                  <EditShop />
                 </Layout>
               </Route>
               <Route>

@@ -1,6 +1,6 @@
 import { useReactiveVar } from "@apollo/client";
 import { faCompass } from "@fortawesome/free-regular-svg-icons";
-import { faCoffee, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPaw, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -53,7 +53,7 @@ function Header() {
     <SHeader>
       <Wrapper>
         <Column>
-          <FontAwesomeIcon icon={faCoffee} size="2x" />
+          <FontAwesomeIcon icon={faPaw} size="2x" />
         </Column>
         <Column>
           {isLoggedIn ? (
@@ -73,7 +73,7 @@ function Header() {
               </Icon>
             </IconsContainer>
           ) : (
-            <Link href={routes.home}>
+            <Link to={routes.home}>
               <Button>Login</Button>
             </Link>
           )}

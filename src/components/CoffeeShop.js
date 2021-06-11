@@ -1,13 +1,20 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 function CoffeeShop({ id, name, latitude, longitude, photos, categories }) {
   return (
     <div>
-      <span>{name}</span>
-      <span>{latitude}</span>
-      <span>{longitude}</span>
-      {photos && photos.map((photo, index) => <span>{photo.url}</span>)}
-      {categories && categories.map((category) => <span>{category.slug}</span>)}
+      <Link to={`/shop/${id}`}>
+        <span>{name}</span>
+        <span>{latitude}</span>
+        <span>{longitude}</span>
+        {photos &&
+          photos.map((photo, index) => <span key={index}>{photo.url}</span>)}
+        {categories &&
+          categories.map((category, index) => (
+            <span key={index}>{category.slug}</span>
+          ))}
+      </Link>
     </div>
   );
 }
