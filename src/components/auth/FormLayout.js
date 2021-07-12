@@ -10,11 +10,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  height: auto;
 `;
 
 const Wrapper = styled.div`
-  border: 1px solid ${(props) => props.theme.borderColor};
-  max-width: 350px;
   width: 100%;
 `;
 
@@ -26,7 +25,7 @@ const DarkModeBtn = styled.span`
   cursor: pointer;
 `;
 
-function AuthLayout({ children }) {
+function FormLayout({ children }) {
   const darkMode = useReactiveVar(darkModeVar);
   return (
     <Container>
@@ -40,4 +39,4 @@ function AuthLayout({ children }) {
   );
 }
 
-export default AuthLayout;
+export default FormLayout;

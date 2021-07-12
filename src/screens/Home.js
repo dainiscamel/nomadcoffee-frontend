@@ -1,10 +1,18 @@
 import { gql, useQuery } from "@apollo/client";
+import { useEffect } from "react";
+import styled from "styled-components";
 import PageTitle from "../components/auth/PageTitle";
 import CoffeeShop from "../components/CoffeeShop";
 
+const CardContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 15px;
+`;
+
 const COFFEESHOPS_QUERY = gql`
-  query seeCoffeeShops($page: Int!) {
-    seeCoffeeShops(page: $page) {
+  query seeCoffeeShops($offset: Int!) {
+    seeCoffeeShops(offset: $offset) {
       id
       name
       latitude
@@ -14,6 +22,7 @@ const COFFEESHOPS_QUERY = gql`
         url
       }
       categories {
+        id
         name
         slug
       }
@@ -24,19 +33,50 @@ const COFFEESHOPS_QUERY = gql`
 `;
 
 function Home() {
-  const { data } = useQuery(COFFEESHOPS_QUERY, {
+  const { data, loading, fetchMore } = useQuery(COFFEESHOPS_QUERY, {
     variables: {
-      page: 1,
+      offset: 0,
     },
   });
 
+  useEffect(() => {
+    const handleScroll = (e) => {
+      const bottom =
+        e.target.scrollingElement.offsetHeight <=
+        e.target.scrollingElement.clientHeight +
+          e.target.scrollingElement.scrollTop +
+          10;
+      if (bottom) {
+        if (data.seeCoffeeShops) {
+          let offset = data.seeCoffeeShops[data.seeCoffeeShops.length - 1].id;
+          fetchMore({
+            variables: {
+              offset,
+            },
+            updateQuery: (prev, { fetchMoreResult }) => {
+              if (!fetchMoreResult) return prev;
+              return Object.assign({}, prev, {
+                seeCoffeeShops: [
+                  ...prev.seeCoffeeShops,
+                  ...fetchMoreResult.seeCoffeeShops,
+                ],
+              });
+            },
+          });
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [data, fetchMore]);
+
   return (
-    <div>
+    <CardContainer>
       <PageTitle title="Home" />
       {data &&
-        data?.seeCoffeeShops?.map((shop) => (
+        data?.seeCoffeeShops?.map((shop, index) => (
           <CoffeeShop
-            key={shop.id}
+            key={index}
             id={shop.id}
             name={shop.name}
             latitude={shop.latitude}
@@ -45,7 +85,7 @@ function Home() {
             categories={shop.categories}
           />
         ))}
-    </div>
+    </CardContainer>
   );
 }
 export default Home;

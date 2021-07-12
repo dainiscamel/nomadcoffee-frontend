@@ -7,6 +7,7 @@ const SAvatar = styled.div`
   background-color: #2c2c2c;
   overflow: hidden;
   display: flex;
+  border: 1px solid ${(props) => props.theme.borderColor};
 `;
 
 const Img = styled.img`

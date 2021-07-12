@@ -7,8 +7,8 @@ const Input = styled.input`
   background-color: ${(props) => props.theme.bgColor};
   border: 0.5px solid
     ${(props) => (props.hasError ? "#c93429" : props.theme.borderColor)};
-  margin-top: 5px;
   box-sizing: border-box;
+  margin-bottom: 5px;
   &::placeholder {
     font-size: 12px;
   }

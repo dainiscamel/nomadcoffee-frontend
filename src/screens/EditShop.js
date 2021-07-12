@@ -68,8 +68,6 @@ function EditShop() {
   const history = useHistory();
 
   const onCompletedQuery = () => {
-    console.log(data);
-
     setValue("name", data?.seeCoffeeShop?.name);
     setValue("latitude", data?.seeCoffeeShop?.latitude || "");
     setValue("longitude", data?.seeCoffeeShop?.longitude || "");
@@ -109,7 +107,6 @@ function EditShop() {
     },
   });
   const onCompleted = (data) => {
-    console.log(data);
     const {
       editCoffeeShop: { ok, error },
     } = data;

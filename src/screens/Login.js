@@ -42,7 +42,6 @@ const LOGIN_MUTATION = gql`
 
 function Login() {
   const location = useLocation();
-  console.log("location", location);
   const {
     register,
     handleSubmit,
@@ -106,8 +105,8 @@ function Login() {
             ref={register({
               required: "Username is required.",
               minLength: {
-                value: 5,
-                message: "Username should be longer than 5 chars.",
+                value: 3,
+                message: "Username should be longer than 3 chars.",
               },
             })}
             onChange={clearLoginError}

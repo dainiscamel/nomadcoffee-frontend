@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
+import { offsetLimitPagination } from "@apollo/client/utilities";
 
 const TOKEN = "TOKEN";
 const DARK_MODE = "DARK_MODE";
@@ -33,7 +34,6 @@ export const disableDarkMode = () => {
 };
 
 const httpLink = createUploadLink({
-  // uri: "http://localhost:4000/graphql",
   uri:
     process.env.NODE_ENV === "production"
       ? "https://nomadcoffee-backend-app.herokuapp.com/graphql"
@@ -49,7 +49,17 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+export const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      fields: {
+        seeCoffeeShops: offsetLimitPagination(),
+      },
+    },
+  },
+});
+
 export const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache,
   link: authLink.concat(httpLink),
 });

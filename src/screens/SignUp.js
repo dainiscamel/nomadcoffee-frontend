@@ -108,8 +108,8 @@ function SingUp() {
             ref={register({
               required: "Username is required.",
               minLength: {
-                value: 5,
-                message: "Username should be longer than 5 chars.",
+                value: 3,
+                message: "Username should be longer than 3 chars.",
               },
             })}
             name="username"

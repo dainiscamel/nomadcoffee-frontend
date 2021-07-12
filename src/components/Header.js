@@ -1,6 +1,5 @@
 import { useReactiveVar } from "@apollo/client";
-import { faCompass } from "@fortawesome/free-regular-svg-icons";
-import { faPaw, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -11,6 +10,7 @@ import Avatar from "./Avatar";
 
 const SHeader = styled.header`
   width: 100%;
+  height: 69px;
   border-bottom: 1px solid ${(props) => props.theme.borderColor};
   background-color: ${(props) => props.theme.bgColor};
   padding: 18px 0px;
@@ -45,6 +45,11 @@ const IconsContainer = styled.div`
   display: flex;
   align-items: center;
 `;
+
+const Logo = styled.img`
+  height: auto;
+  width: 180px;
+`;
 function Header() {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
   const { data } = useUser();
@@ -53,22 +58,25 @@ function Header() {
     <SHeader>
       <Wrapper>
         <Column>
-          <FontAwesomeIcon icon={faPaw} size="2x" />
+          <Link to={routes.home}>
+            <Logo src="/logo.png" />
+          </Link>
         </Column>
         <Column>
           {isLoggedIn ? (
             <IconsContainer>
               <Icon>
                 <Link to={`/add`}>
-                  <FontAwesomeIcon icon={faPlus} size="lg" />
+                  <FontAwesomeIcon
+                    icon={faPlus}
+                    size="lg"
+                    style={{ color: "#d6a93b" }}
+                  />
                 </Link>
               </Icon>
               <Icon>
-                <FontAwesomeIcon icon={faCompass} size="lg" />
-              </Icon>
-              <Icon>
                 <Link to={`/users/${data?.me?.username}`}>
-                  <Avatar url={data?.me?.avatar} />
+                  <Avatar url={data?.me?.avatarURL} />
                 </Link>
               </Icon>
             </IconsContainer>
