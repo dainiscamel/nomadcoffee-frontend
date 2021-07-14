@@ -1,32 +1,54 @@
-import { useMutation, useQuery } from "@apollo/client";
-import gql from "graphql-tag";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useForm } from "react-hook-form";
-import { useHistory, useParams } from "react-router";
-import AuthLayout from "../components/auth/AuthLayout";
+import { useHistory } from "react-router";
+import FormLayout from "../components/auth/FormLayout";
 import Button from "../components/auth/Button";
 import FormBox from "../components/auth/FormBox";
 import FormError from "../components/auth/FormError";
 import Input from "../components/auth/Input";
 import PageTitle from "../components/auth/PageTitle";
 import routes from "../routes";
+import styled from "styled-components";
+import { useParams } from "react-router-dom";
 
-const SEE_SHOP_QUERY = gql`
+const TitleContainer = styled.div`
+  padding: 35px 40px 25px 40px;
+`;
+
+const Title = styled.h1`
+  font-size: 32px;
+  color: ${(props) => props.theme.accent};
+  line-height: 1.8;
+  font-weight: 600;
+`;
+
+const SubTitle = styled.h2`
+  font-size: 18px;
+`;
+
+const Label = styled.label`
+  color: ${(props) => props.theme.accent};
+  width: 100%;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 10px 0;
+`;
+
+const FormButton = styled(Button)`
+  margin-top: 35px;
+`;
+
+const COFFEE_SHOP_QUERY = gql`
   query seeCoffeeShop($id: Int!) {
     seeCoffeeShop(id: $id) {
       id
       name
       latitude
       longitude
-      photos {
-        id
-        url
-      }
       categories {
         name
         slug
       }
-      createdAt
-      updatedAt
     }
   }
 `;
@@ -37,26 +59,17 @@ const EDIT_SHOP_QUERY = gql`
     $name: String!
     $latitude: String
     $longitude: String
-    $photos: Upload
     $categories: String!
+    $photos: Upload
   ) {
     editCoffeeShop(
       id: $id
       name: $name
       latitude: $latitude
       longitude: $longitude
-      photos: $photos
       categories: $categories
+      photos: $photos
     ) {
-      ok
-      error
-    }
-  }
-`;
-
-const DELETE_SHOP_QUERY = gql`
-  mutation deleteCoffeeShop($id: Int!) {
-    deleteCoffeeShop(id: $id) {
       ok
       error
     }
@@ -67,147 +80,151 @@ function EditShop() {
   const { id } = useParams();
   const history = useHistory();
 
-  const onCompletedQuery = () => {
-    setValue("name", data?.seeCoffeeShop?.name);
-    setValue("latitude", data?.seeCoffeeShop?.latitude || "");
-    setValue("longitude", data?.seeCoffeeShop?.longitude || "");
-    // setValue(
-    //   "photos",
-    //   data?.seeCoffeeShop?.photos?.map((cate) => cate?.url).join("") || ""
-    // );
-    setValue(
-      "categories",
-      data?.seeCoffeeShop?.categories?.map((cate) => cate?.name).join("") || ""
-    );
+  const onError = ({ networkError }) => {
+    if (networkError) {
+      console.log(`[Network error]: ${networkError}`);
+    }
   };
-  const { data } = useQuery(SEE_SHOP_QUERY, {
-    variables: {
-      id: Number.parseInt(id, 10),
-    },
-    onCompleted: onCompletedQuery,
+  const { data } = useQuery(COFFEE_SHOP_QUERY, {
+    variables: { id: +id },
+    onError,
   });
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState,
-    setValue,
-    setError,
-    getValues,
-  } = useForm({
-    mode: "onChange",
-    reValidateMode: "onChange",
-    defaultValues: {
-      name: data?.seeCoffeeShop?.name,
-      latitude: data?.seeCoffeeShop?.latitude,
-      longitude: data?.seeCoffeeShop?.longitude,
-      categories: data?.seeCoffeeShop?.categories[0].name,
-      photos: data?.seeCoffeeShop?.photos,
-    },
-  });
+  const { register, handleSubmit, errors, formState, setError, clearErrors } =
+    useForm({
+      mode: "onChange",
+      defaultValues: {
+        name: data?.seeCoffeeShop?.name,
+        latitude: data?.seeCoffeeShop?.latitude,
+        longitude: data?.seeCoffeeShop?.longitude,
+        categories: data?.seeCoffeeShop?.categories
+          ?.map((cate) => cate?.name)
+          .join(","),
+        photos: data?.seeCoffeeShop?.photos,
+        result: "",
+      },
+    });
+
   const onCompleted = (data) => {
     const {
-      editCoffeeShop: { ok, error },
+      editCoffeeShop: { ok },
     } = data;
+    console.log(ok);
     if (!ok) {
       return setError("result", {
-        message: error,
+        message: "Can't edit shop :-().",
       });
     }
+    history.push(routes.home);
   };
 
   const [editCoffeeShop, { loading }] = useMutation(EDIT_SHOP_QUERY, {
     onCompleted,
+    onError,
   });
-
-  const [deleteCoffeeShop] = useMutation(DELETE_SHOP_QUERY);
-
-  const onDeleteHandler = () => {
-    deleteCoffeeShop({
-      variables: {
-        id: Number.parseInt(id, 10),
-      },
-    });
-    history.push(routes.home);
-  };
 
   function onSubmitValid(data) {
     if (loading) {
       return;
     }
-    const { name, latitude, longitude, categories, photos } = getValues();
+
     editCoffeeShop({
       variables: {
-        id: Number.parseInt(id, 10),
-        name,
-        latitude,
-        longitude,
-        categories,
-        photos,
+        id: +id,
+        ...data,
+        ...(data.photos && { photos: data.photos[0] }),
       },
     });
   }
+
+  const clearEditShopError = () => {
+    clearErrors("result");
+  };
+
   return (
-    <AuthLayout>
+    <FormLayout>
       <PageTitle title="EditShop" />
+      <TitleContainer>
+        <Title>Edit your Coffee Shop. </Title>
+        <SubTitle>
+          Please fill in the details and sharing with your friends.
+        </SubTitle>
+      </TitleContainer>
       <FormBox>
-        <h1>Edit your coffee shop info.</h1>
         <form onSubmit={handleSubmit(onSubmitValid)}>
-          <Input
-            ref={register()}
-            type="text"
-            name="name"
-            placeholder="Name"
-            hasError={Boolean(errors?.name?.message)}
-          />
-          <FormError message={errors?.name?.message} />
-          <Input
-            ref={register()}
-            type="text"
-            name="latitude"
-            placeholder="Latitude"
-            hasError={Boolean(errors?.latitude?.message)}
-          />
-          <FormError message={errors?.latitude?.message} />
-          <Input
-            ref={register()}
-            type="text"
-            name="longitude"
-            placeholder="Longitude"
-            hasError={Boolean(errors?.longitude?.message)}
-          />
-          <FormError message={errors?.longitude?.message} />
-          <Input
-            ref={register()}
-            type="file"
-            name="photos"
-            placeholder="Photos"
-            accept="image/png, image/jpeg"
-            hasError={Boolean(errors?.photos?.message)}
-          />
-          <FormError message={errors?.photos?.message} />
+          <Label>Name</Label>
           <Input
             ref={register({
-              required: "Categories is required.",
+              required: "Name is required.",
+            })}
+            name="name"
+            type="text"
+            placeholder="가게명"
+            hasError={Boolean(errors?.name?.message)}
+            onChange={clearEditShopError}
+          />
+
+          <FormError message={errors?.name?.message} />
+          <Label>Latitude</Label>
+          <Input
+            ref={register({
+              required: "Latitude is required.",
+            })}
+            name="latitude"
+            type="text"
+            placeholder="위도"
+            hasError={Boolean(errors?.latitude?.message)}
+            onChange={clearEditShopError}
+          />
+          <FormError message={errors?.latitude?.message} />
+          <Label>Longitude</Label>
+          <Input
+            ref={register({
+              required: "Longitude is required.",
+            })}
+            name="longitude"
+            type="text"
+            placeholder="경도"
+            hasError={Boolean(errors?.longitude?.message)}
+            onChange={clearEditShopError}
+          />
+          <FormError message={errors?.longitude?.message} />
+
+          <Label>Shop Image</Label>
+          <Input
+            ref={register()}
+            name="photos"
+            type="file"
+            placeholder="가게 이미지"
+            hasError={Boolean(errors?.photos?.message)}
+            onChange={clearEditShopError}
+          />
+          <FormError message={errors?.photos?.message} />
+
+          <Label>Category</Label>
+          <Input
+            ref={register({
+              required: "Category is required.",
+              minLength: {
+                message: "Categories should be longer than 5 chars.",
+              },
             })}
             name="categories"
             type="text"
-            placeholder="Categories"
+            placeholder="1개 이상의 카테로리를 콤마(,)로 구분하여주세요."
             hasError={Boolean(errors?.categories?.message)}
+            onChange={clearEditShopError}
           />
           <FormError message={errors?.categories?.message} />
-          <Button
+          <FormButton
             type="submit"
-            value={loading ? "Loading..." : "Edit"}
+            value={loading ? "Loading..." : "Edit Shop"}
             disabled={!formState.isValid || loading}
           />
-
           <FormError message={errors?.result?.message} />
         </form>
       </FormBox>
-      <Button onClick={onDeleteHandler} defaultValue="Delete Shop" />
-    </AuthLayout>
+    </FormLayout>
   );
 }
 

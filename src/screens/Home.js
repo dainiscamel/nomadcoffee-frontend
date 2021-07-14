@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import styled from "styled-components";
 import PageTitle from "../components/auth/PageTitle";
 import CoffeeShop from "../components/CoffeeShop";
+import Loading from "../components/Loading";
 
 const CardContainer = styled.div`
   display: grid;
@@ -17,6 +18,9 @@ const COFFEESHOPS_QUERY = gql`
       name
       latitude
       longitude
+      user {
+        id
+      }
       photos {
         id
         url
@@ -47,11 +51,10 @@ function Home() {
           e.target.scrollingElement.scrollTop +
           10;
       if (bottom) {
-        if (data.seeCoffeeShops) {
-          let offset = data.seeCoffeeShops[data.seeCoffeeShops.length - 1].id;
+        if (data?.seeCoffeeShops) {
           fetchMore({
             variables: {
-              offset,
+              offset: data?.seeCoffeeShops?.length,
             },
             updateQuery: (prev, { fetchMoreResult }) => {
               if (!fetchMoreResult) return prev;
@@ -71,21 +74,25 @@ function Home() {
   }, [data, fetchMore]);
 
   return (
-    <CardContainer>
+    <div>
       <PageTitle title="Home" />
-      {data &&
-        data?.seeCoffeeShops?.map((shop, index) => (
-          <CoffeeShop
-            key={index}
-            id={shop.id}
-            name={shop.name}
-            latitude={shop.latitude}
-            longitude={shop.longitude}
-            photos={shop.photos}
-            categories={shop.categories}
-          />
-        ))}
-    </CardContainer>
+      {loading ? <Loading /> : null}
+      <CardContainer>
+        {data &&
+          data?.seeCoffeeShops?.map((shop, index) => (
+            <CoffeeShop
+              key={index}
+              id={shop.id}
+              name={shop.name}
+              userId={shop.user.id}
+              latitude={shop.latitude}
+              longitude={shop.longitude}
+              photos={shop.photos}
+              categories={shop.categories}
+            />
+          ))}
+      </CardContainer>
+    </div>
   );
 }
 export default Home;

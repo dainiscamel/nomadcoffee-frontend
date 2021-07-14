@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import useUser from "../hooks/useUser";
 
 const Shop = styled.div`
   border: 1px solid ${(props) => props.theme.accent};
@@ -13,7 +14,7 @@ const Shadow = styled.div`
   width: 100%;
   height: 100%;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(214, 169, 59, 0.2);
   }
 `;
 const ShopImageWrapper = styled.div`
@@ -44,7 +45,7 @@ const ShopName = styled.h1`
 const ShopLocation = styled.h1``;
 
 const ShopCategories = styled.div`
-  text-decoration: underline;
+  display: inline-block;
   color: ${(props) => props.theme.accent};
   &:hover {
     color: white;
@@ -52,27 +53,79 @@ const ShopCategories = styled.div`
   }
 `;
 
-function CoffeeShop({ id, name, latitude, longitude, photos, categories }) {
+const Me = styled.span`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: ${(props) => props.theme.accent};
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+function CoffeeShop({
+  id,
+  name,
+  userId,
+  latitude,
+  longitude,
+  photos,
+  categories,
+}) {
+  const {
+    data: { me },
+  } = useUser();
+
   return (
     <Shop>
-      <Link to={`/shop/${id}`}>
-        <Shadow></Shadow>
-        <ShopImageWrapper>
-          {photos &&
-            photos.map((photo) => <ShopImage key={photo.id} src={photo.url} />)}
-        </ShopImageWrapper>
-      </Link>
+      {userId === me.id ? (
+        <Link
+          to={{
+            pathname: `/shop/${id}`,
+          }}
+        >
+          <Shadow></Shadow>
+          <ShopImageWrapper>
+            <Me>me</Me>
+            {photos &&
+              photos.map((photo) => (
+                <ShopImage key={photo.id} src={photo.url} />
+              ))}
+          </ShopImageWrapper>
+        </Link>
+      ) : (
+        <div>
+          <ShopImageWrapper>
+            {photos &&
+              photos.map((photo) => (
+                <ShopImage key={photo.id} src={photo.url} />
+              ))}
+          </ShopImageWrapper>
+        </div>
+      )}
       <ShopContent>
         <ShopName>{name}</ShopName>
         <ShopLocation>위도 : {latitude}</ShopLocation>
         <ShopLocation>경도 : {longitude}</ShopLocation>
         <h1>카테고리 : </h1>
-        {categories &&
-          categories.map((category, index) => (
-            <Link to={`/shop/${id}`}>
-              <ShopCategories key={++index}>{category.slug}</ShopCategories>
-            </Link>
-          ))}
+        <ShopCategories>
+          {categories &&
+            categories.map((category) => (
+              <span key={category.id} style={{ textDecoration: "underline" }}>
+                {category.slug}
+                <span
+                  style={{ textDecoration: "none", display: "inline-block" }}
+                >
+                  &nbsp;
+                </span>
+              </span>
+            ))}
+        </ShopCategories>
       </ShopContent>
     </Shop>
   );

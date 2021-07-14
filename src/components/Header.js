@@ -33,12 +33,20 @@ const Icon = styled.span`
   margin-left: 15px;
 `;
 
-const Button = styled.span`
-  background-color: ${(props) => props.theme.accent};
+const PlusIcon = styled(FontAwesomeIcon)`
+  color: #d6a93b;
+  margin-right: 10px;
+`;
+
+const Button = styled.div`
+  border: 1px solid ${(props) => props.theme.accent};
   border-radius: 4px;
-  padding: 4px 15px;
-  color: white;
+  padding: 8px 15px;
+  color: ${(props) => props.theme.accent};
   font-weight: 600;
+  &:hover {
+    background-color: ${(props) => props.theme.bor};
+  }
 `;
 
 const IconsContainer = styled.div`
@@ -67,11 +75,10 @@ function Header() {
             <IconsContainer>
               <Icon>
                 <Link to={`/add`}>
-                  <FontAwesomeIcon
-                    icon={faPlus}
-                    size="lg"
-                    style={{ color: "#d6a93b" }}
-                  />
+                  <Button>
+                    <PlusIcon icon={faPlus} className="fa-plus" size="lg" />
+                    Add Shop
+                  </Button>
                 </Link>
               </Icon>
               <Icon>
