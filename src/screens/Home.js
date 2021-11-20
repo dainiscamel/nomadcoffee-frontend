@@ -18,9 +18,7 @@ const COFFEESHOPS_QUERY = gql`
       name
       latitude
       longitude
-      user {
-        id
-      }
+
       photos {
         id
         url
@@ -42,7 +40,7 @@ function Home() {
       offset: 0,
     },
   });
-
+  console.log(data);
   useEffect(() => {
     const handleScroll = (e) => {
       const bottom =
@@ -84,7 +82,6 @@ function Home() {
               key={index}
               id={shop.id}
               name={shop.name}
-              userId={shop.user.id}
               latitude={shop.latitude}
               longitude={shop.longitude}
               photos={shop.photos}

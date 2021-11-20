@@ -9,6 +9,7 @@ import Input from "../components/auth/Input";
 import PageTitle from "../components/auth/PageTitle";
 import routes from "../routes";
 import styled from "styled-components";
+import { useEffect, useState } from "react";
 
 const TitleContainer = styled.div`
   padding: 35px 40px 25px 40px;
@@ -52,14 +53,8 @@ const ADD_SHOP_QUERY = gql`
       categories: $categories
       photos: $photos
     ) {
-      id
-      name
-      latitude
-      longitude
-      photos {
-        id
-        url
-      }
+      ok
+      error
     }
   }
 `;
@@ -70,12 +65,14 @@ function AddShop() {
     useForm({
       mode: "onChange",
     });
+
   const onCompleted = (data) => {
+    console.log("complete", data);
     const {
-      createCoffeeShop: { id },
+      createCoffeeShop: { ok },
     } = data;
 
-    if (!id) {
+    if (!ok) {
       return setError("result", {
         message: "Can't add shop :-().",
       });
@@ -86,16 +83,22 @@ function AddShop() {
   const [createCoffeeShop, { loading }] = useMutation(ADD_SHOP_QUERY, {
     onCompleted,
   });
+  const [image, setImage] = useState();
 
   function onSubmitValid(data) {
+    console.log("submit", data, image);
+
     if (loading) {
       return;
     }
-
+    const { name, latitude, longitude, categories, photos } = data;
     createCoffeeShop({
       variables: {
-        ...data,
-        ...(data.photos && { photos: data.photos[0] }),
+        name,
+        latitude,
+        longitude,
+        categories,
+        photos: image,
       },
     });
   }
@@ -158,9 +161,13 @@ function AddShop() {
             ref={register()}
             name="photos"
             type="file"
+            accept=".png, .jpg"
             placeholder="가게 이미지"
             hasError={Boolean(errors?.photos?.message)}
-            onChange={clearAddShopError}
+            onChange={(e) => {
+              setImage(e.target.files[0]);
+            }}
+            // onChange={clearAddShopError}
           />
           <FormError message={errors?.photos?.message} />
 
